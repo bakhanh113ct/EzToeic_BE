@@ -5,6 +5,7 @@ import { Errors, handleError } from "../helpers/error";
 import userRoute from "./user.route";
 import testRoute from "./test.route";
 import flashcardRoute from "./flashCard.route";
+import playlistRoute from "./playlist.route";
 
 const route = (app: Express) => {
   app.use("/hihi", (req, res, next) => {
@@ -16,7 +17,9 @@ const route = (app: Express) => {
 
   app.use("/tests", testRoute);
 
-  app.use("/flashcards", flashcardRoute)
+  app.use("/flashcards", flashcardRoute);
+
+  app.use("/playlists", playlistRoute);
 
   app.all("*", (req: Request, res: Response, next: NextFunction) => {
     next(Errors.NotFound);

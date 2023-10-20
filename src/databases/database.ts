@@ -12,6 +12,8 @@ import { config } from "dotenv";
 import { ResultPart } from "../models/resultPart.model";
 import { VocabList } from "../models/vocabList.model";
 import { Vocab } from "../models/vocab.model";
+import { Playlist } from "../models/playlist.model";
+import { Lesson } from "../models/lesson.model";
 
 config();
 
@@ -36,6 +38,8 @@ export const AppDataSource = new DataSource({
     ResultPart,
     VocabList,
     Vocab,
+    Playlist,
+    Lesson,
   ],
   subscribers: [],
   migrations: [],

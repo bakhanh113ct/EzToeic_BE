@@ -13,8 +13,8 @@ const getAllFlashcard = async (
       vocabs: true,
     },
     order: {
-      id: "ASC"
-    }
+      id: "ASC",
+    },
   });
   return res.json(flashcards);
 };
@@ -74,9 +74,19 @@ const deleteVocabList = async (
     return next(Errors.BadRequest);
   }
 
-  try {
+  const vocabs = await Vocab.find({
+    where: { vocabList: { id: Number(listId) } },
+    select: { id: true },
+  });
 
-    const vocabList = await VocabList.findOneBy({id: Number(listId)})
+  const vocabIds: number[] = vocabs.map((value, index) => {
+    return Number(value.id);
+  });
+
+  try {
+    await Vocab.delete(vocabIds);
+
+    const vocabList = await VocabList.findOneBy({ id: Number(listId) });
     const rs = await VocabList.remove(vocabList);
 
     // await rs.save()
@@ -84,12 +94,14 @@ const deleteVocabList = async (
     // console.log(object);
 
     // if (rs. != 0) {
-      return res.json({ msg: "Delete successful" });
+    return res.json({ msg: "Delete successful" });
     // }
     // return res.json({ msg: `Can't find list with id = ${listId}` });
   } catch (err) {
     return res.json(err);
   }
+
+  return res.json(vocabs);
 };
 
 const createVocab = async (req: Request, res: Response, next: NextFunction) => {
