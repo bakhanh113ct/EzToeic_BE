@@ -22,12 +22,23 @@ const getAllTest = async (req: Request, res: Response, next: NextFunction) => {
   const currentPage: number = Number(req.query.page) || 1;
   const perPage: number = 20;
 
+  const pageCount = await Test.createQueryBuilder("test")
+    .innerJoinAndSelect("test.testSet", "testSet")
+    .orderBy("test.title")
+    .addOrderBy("testSet.title", "DESC")
+    .groupBy("test.id")
+    .addGroupBy("testSet.title")
+    .where({ title: ILike(`%${search}%`) })
+    .getCount();
+  
   const tests = await Test.createQueryBuilder("test")
     .innerJoinAndSelect("test.testSet", "testSet")
     .orderBy("test.title")
     .addOrderBy("testSet.title", "DESC")
     .offset((currentPage - 1) * perPage)
     .limit(perPage)
+    .groupBy("test.id")
+    .addGroupBy("testSet.title")
     .where({ title: ILike(`%${search}%`) })
     .select([
       "test.id as id",
@@ -39,7 +50,10 @@ const getAllTest = async (req: Request, res: Response, next: NextFunction) => {
     ])
     .getRawMany();
 
-  return res.json(tests);
+  return res.json({
+    pageCount: Math.ceil(pageCount / perPage),
+    tests: tests,
+  });
 };
 
 const getTestById = async (req: Request, res: Response, next: NextFunction) => {
