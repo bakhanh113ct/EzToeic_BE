@@ -24,6 +24,7 @@ authRoute.put(
       })
       .normalizeEmail(),
     body("password").trim().isLength({ min: 5 }),
+    body('password').isStrongPassword(),
     body("name").trim().not().isEmpty(),
   ],
   signUp

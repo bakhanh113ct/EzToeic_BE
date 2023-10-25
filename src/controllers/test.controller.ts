@@ -30,7 +30,7 @@ const getAllTest = async (req: Request, res: Response, next: NextFunction) => {
     .addGroupBy("testSet.title")
     .where({ title: ILike(`%${search}%`) })
     .getCount();
-  
+
   const tests = await Test.createQueryBuilder("test")
     .innerJoinAndSelect("test.testSet", "testSet")
     .orderBy("test.title")
@@ -54,6 +54,31 @@ const getAllTest = async (req: Request, res: Response, next: NextFunction) => {
     pageCount: Math.ceil(pageCount / perPage),
     tests: tests,
   });
+};
+
+const getInfoTestById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const testId = req.params.testId;
+
+  const tests = await Test.createQueryBuilder("test")
+    .innerJoinAndSelect("test.testSet", "testSet")
+    .groupBy("test.id")
+    .addGroupBy("testSet.title")
+    .where({ id: testId })
+    .select([
+      "test.id as id",
+      "test.title as title",
+      'test."sectionCount" as "sectionCount"',
+      'test."questionCount" as "questionCount"',
+      "test.time as time",
+      'testSet.title as "setTitle"',
+    ])
+    .getRawOne();
+
+  return res.json(tests);
 };
 
 const getTestById = async (req: Request, res: Response, next: NextFunction) => {
@@ -395,4 +420,5 @@ export {
   getAllTest,
   getTestResults,
   getDetailResult,
+  getInfoTestById,
 };
