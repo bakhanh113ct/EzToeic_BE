@@ -21,7 +21,7 @@ const signAccessToken = (user: User) => {
       isAdmin: user.isAdmin,
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "1m" }
+    { expiresIn: "7d" }
   );
 
   return token;
