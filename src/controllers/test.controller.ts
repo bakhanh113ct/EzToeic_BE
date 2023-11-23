@@ -93,7 +93,6 @@ const getTestById = async (req: Request, res: Response, next: NextFunction) => {
     .orderBy("question.index")
     .where("part.number in(:...numbers)", { numbers: parts })
     .select(["question", "part", "partDetail"])
-    // .addSelect()
     .getMany();
 
   const tests = await PartDetail.createQueryBuilder("partDetail")

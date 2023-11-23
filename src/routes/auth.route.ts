@@ -1,6 +1,10 @@
 import express, { Router } from "express";
 import { User } from "../models/auth.model";
-import { signUp, signIn } from "../controllers/auth.controller";
+import {
+  signUp,
+  signIn,
+  refreshTokenController,
+} from "../controllers/auth.controller";
 import { body } from "express-validator";
 
 const authRoute: Router = express.Router();
@@ -24,7 +28,7 @@ authRoute.put(
       })
       .normalizeEmail(),
     body("password").trim().isLength({ min: 5 }),
-    body('password').isStrongPassword(),
+    body("password").isStrongPassword(),
     body("name").trim().not().isEmpty(),
   ],
   signUp
@@ -51,6 +55,8 @@ authRoute.post(
   ],
   signIn
 );
+
+authRoute.post("/refreshToken", refreshTokenController);
 
 // authRoute.get('')
 
