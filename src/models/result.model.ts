@@ -31,6 +31,12 @@ export class Result extends BaseEntity {
   @Column({ nullable: true })
   correctCount: number;
 
+  @Column({ nullable: true })
+  wrongCount: number;
+
+  @Column({ nullable: true })
+  undoneCount: number;
+
   @Column()
   time: string;
 
