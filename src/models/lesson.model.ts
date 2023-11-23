@@ -11,6 +11,9 @@ export class Lesson extends BaseEntity{
     @Column()
     videoUrl: string
 
+    @Column({nullable: true})
+    title: string
+
     @ManyToOne((type) => Playlist, (playlist) => playlist.lessons)
     playlist: Playlist
 }
