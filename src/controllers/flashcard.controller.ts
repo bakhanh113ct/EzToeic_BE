@@ -2,21 +2,42 @@ import { NextFunction, Request, Response } from "express";
 import { VocabList } from "../models/vocabList.model";
 import { Vocab } from "../models/vocab.model";
 import { Errors } from "../helpers/error";
+import logger from "../configs/logger";
+import { ILike } from "typeorm";
 
 const getAllFlashcard = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const flashcards = await VocabList.find({
-    relations: {
-      vocabs: true,
+  const page: number = Number(req.query.page) || 1;
+  const perPage = 6;
+
+  const itemCount = await VocabList.count({
+    where: {
+      user: { id: Number(req.auth.userId) },
     },
     order: {
       id: "ASC",
     },
   });
-  return res.json(flashcards);
+
+  const flashcards = await VocabList.find({
+    where: {
+      user: { id: Number(req.auth.userId) },
+    },
+    relations: {
+      vocabs: true,
+      user: true,
+    },
+    take: perPage,
+    skip: (page - 1) * perPage,
+    order: { id: "ASC"},
+  });
+  return res.json({
+    pageCount: Math.ceil(itemCount / perPage),
+    flashcards: flashcards,
+  });
 };
 
 const createVocabList = async (
@@ -35,6 +56,10 @@ const createVocabList = async (
     createdAt: new Date(),
     updatedAt: new Date(),
   });
+
+  logger.info(
+    `User [${req.auth.userId}] create vocabList: ${JSON.stringify(vocabList)}]`
+  );
 
   await vocabList.save();
 
@@ -100,8 +125,6 @@ const deleteVocabList = async (
   } catch (err) {
     return res.json(err);
   }
-
-  return res.json(vocabs);
 };
 
 const createVocab = async (req: Request, res: Response, next: NextFunction) => {
