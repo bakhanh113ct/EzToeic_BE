@@ -11,6 +11,8 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
 import { client } from "../configs/redis";
+import logger from "../configs/logger";
+import { json } from "body-parser";
 dotenv.config();
 
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
@@ -22,28 +24,19 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
   }
   const user = User.create(req.body);
 
-  // const email = req.body.email;
-  // const name = req.body.name;
-  // const password = req.body.password;
-  // const dateOfBirth = req.body.dateOfBirth;
-  // const phone = req.body.phone;
-  // const isAdmin = req.body.isAdmin;
-
   bcrypt.hash(req.body.password, 12).then(async (hashedPw) => {
-    // user.email = email;
-    // user.name = name;
     user.password = hashedPw;
-    // user.dateOfBirth = dateOfBirth;
-    // user.phone = phone;
-    // user.isAdmin = isAdmin;
     user.createdAt = new Date();
     user.updatedAt = new Date();
 
     try {
       await user.save();
+      logger.info(JSON.stringify(user), 'Hihi');
       res.status(200).json(user);
     } catch (err) {
-      res.status(422).json(err);
+      const error = new ErrorResp("error.conflict", err, 422);
+      // res.status(422).json(err);
+      next(error);
     }
   });
 };
@@ -75,11 +68,9 @@ const signIn = async (req, res, next) => {
         user: user,
       });
     } else {
-      console.log("not same");
       return next(Errors.wrongPassword);
     }
   }
-
 };
 
 const refreshTokenController = async (
@@ -128,8 +119,9 @@ const refreshTokenController = async (
         userId: user.userId,
       });
     }
-  } catch (error) {
-    return res.status(400).send("Invalid token!");
+  } catch (err) {
+    const error = new ErrorResp("error.badRequest", "Invalid token!", 400);
+    return next(error);
   }
 };
 

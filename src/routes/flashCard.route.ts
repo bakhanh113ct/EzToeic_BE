@@ -13,7 +13,7 @@ import {
 const flashcardRoute = express.Router();
 
 flashcardRoute.get("/", verifyAccessToken, getAllFlashcard);
-flashcardRoute.get("/lists", verifyAccessToken, createVocabList);
+flashcardRoute.post("/lists", verifyAccessToken, createVocabList);
 flashcardRoute.post("/lists/:listId", verifyAccessToken, updateVocabList);
 flashcardRoute.delete("/lists/:listId", verifyAccessToken, deleteVocabList);
 flashcardRoute.post("/lists/:listId/vocabs", verifyAccessToken, createVocab);

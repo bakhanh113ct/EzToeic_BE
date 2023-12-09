@@ -1,5 +1,6 @@
-import { createClient } from 'redis';
-import { config } from 'dotenv';
+import { createClient } from "redis";
+import { config } from "dotenv";
+import logger from "./logger";
 // import { Log, getProcessId } from '../utils/function';
 // import moment from 'moment';
 
@@ -12,3 +13,9 @@ export const client = createClient({
 (async () => {
   await client.connect();
 })();
+
+client.on("error", (err) => {
+  logger.error('Redis client ' + err);
+});
+
+
