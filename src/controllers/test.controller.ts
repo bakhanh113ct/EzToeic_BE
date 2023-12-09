@@ -82,7 +82,11 @@ const getInfoTestById = async (
 };
 
 const getTestById = async (req: Request, res: Response, next: NextFunction) => {
-  const parts = req.query.part || [1, 2, 3, 4, 5, 6, 7];
+  let parts;
+  if (req.query.part.length == 1) {
+    parts = [req.query.part];
+  }
+  else parts = req.query.part || [1, 2, 3, 4, 5, 6, 7];
   const test = await Test.findOneBy({ id: Number(req.params.testId) });
 
   console.log(parts);
