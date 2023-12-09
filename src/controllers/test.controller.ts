@@ -111,7 +111,7 @@ const getTestById = async (req: Request, res: Response, next: NextFunction) => {
 
     .orderBy("question.index")
     .where("part.number in(:...numbers)", { numbers: parts })
-    .andWhere("test.id = :id", {id: req.params.testId})
+    .andWhere("test.id = :id", { id: req.params.testId })
     .getMany();
 
   var gr = function (xs: Question[], key) {
@@ -294,7 +294,7 @@ const submitTest = async (req: Request, res: Response, next: NextFunction) => {
 
   const getQuestionCount = async () => {
     const count = await PartDetail.createQueryBuilder("partDetail")
-      .where("partDetail.partId IN (:...numbers)", { numbers: [1, 2, 4] })
+      .where("partDetail.partId IN (:...numbers)", { numbers: body.parts })
       .select("SUM(partDetail.questionCount)", "questionCount")
       .getRawOne();
     return count.questionCount;
@@ -383,6 +383,29 @@ const submitTest = async (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
+const getAllResultByUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const results = await Result.find({
+    where: {
+      user: { id: Number(req.auth.userId) },
+    },
+    order: {
+      id: "ASC",
+      resultParts: { partNumber: "ASC" },
+    },
+    relations: {
+      resultParts: true,
+    },
+  });
+
+  // console.log(results);
+
+  res.json(results);
+};
+
 const getTestResults = async (
   req: Request,
   res: Response,
@@ -393,12 +416,14 @@ const getTestResults = async (
   const results = await Result.find({
     where: {
       test: { id: Number(params.testId) || -1 },
+      user: { id: Number(req.auth.userId) },
     },
     order: {
       id: "ASC",
     },
     relations: {
       resultParts: true,
+      // resultDetails: true,
     },
   });
 
@@ -415,7 +440,6 @@ const getDetailResult = async (
   const params = req.params;
 
   const result = await Result.createQueryBuilder("result")
-
     .innerJoinAndSelect("result.test", "test")
     .where("result.id = :id", { id: params.resultId })
     .select("result.id", "id")
@@ -504,6 +528,7 @@ export {
   getPartSolutionsById,
   submitTest,
   getAllTest,
+  getAllResultByUser,
   getTestResults,
   getDetailResult,
   getInfoTestById,

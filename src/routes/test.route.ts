@@ -9,10 +9,12 @@ import {
   getTestResults,
   getDetailResult,
   getInfoTestById,
+  getAllResultByUser,
 } from "../controllers/test.controller";
 
 const testRoute: Router = express.Router();
 testRoute.get("/", getAllTest);
+testRoute.get("/results", verifyAccessToken, getAllResultByUser);
 testRoute.get("/:testId", verifyAccessToken, getTestById);
 testRoute.get("/:testId/info", getInfoTestById);
 testRoute.get("/:testId/solutions", verifyAccessToken, getSolutionsById);
