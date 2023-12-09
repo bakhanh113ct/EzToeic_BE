@@ -28,16 +28,33 @@ const getAllFlashcard = async (
     },
     relations: {
       vocabs: true,
-      user: true,
     },
     take: perPage,
     skip: (page - 1) * perPage,
-    order: { id: "ASC"},
+    order: { id: "ASC" },
   });
   return res.json({
     pageCount: Math.ceil(itemCount / perPage),
     flashcards: flashcards,
   });
+};
+
+const getOneFlashcard = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id: number = Number(req.params.listId);
+
+  const flashcards = await VocabList.findOne({
+    where: {
+      id: id,
+    },
+    relations: {
+      vocabs: true,
+    },
+  });
+  return res.json(flashcards);
 };
 
 const createVocabList = async (
@@ -193,6 +210,7 @@ const deleteVocab = async (req: Request, res: Response, next: NextFunction) => {
 
 export {
   getAllFlashcard,
+  getOneFlashcard,
   createVocabList,
   updateVocabList,
   deleteVocabList,

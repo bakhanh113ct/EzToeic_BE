@@ -27,7 +27,7 @@ export class Question extends BaseEntity {
   @Column({nullable: true})
   imageUrl: string;
 
-  @Column()
+  @Column({nullable: true})
   audioUrl: string;
 
   @Column({ nullable: true })

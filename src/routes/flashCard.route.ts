@@ -6,6 +6,7 @@ import {
   deleteVocab,
   deleteVocabList,
   getAllFlashcard,
+  getOneFlashcard,
   updateVocab,
   updateVocabList,
 } from "../controllers/flashcard.controller";
@@ -13,6 +14,7 @@ import {
 const flashcardRoute = express.Router();
 
 flashcardRoute.get("/", verifyAccessToken, getAllFlashcard);
+flashcardRoute.get("/lists/:listId", verifyAccessToken, getOneFlashcard);
 flashcardRoute.post("/lists", verifyAccessToken, createVocabList);
 flashcardRoute.post("/lists/:listId", verifyAccessToken, updateVocabList);
 flashcardRoute.delete("/lists/:listId", verifyAccessToken, deleteVocabList);

@@ -43,7 +43,7 @@ export class Result extends BaseEntity {
   @Column({select: false})
   dateComplete: Date;
 
-  @Column({select: false})
+  @Column({select: true})
   createdAt: Date;
 
   @Column({select: false})
@@ -59,5 +59,5 @@ export class Result extends BaseEntity {
   resultDetails: ResultDetail[];
 
   @OneToMany((type) => ResultPart, (test) => test.result)
-  resultParts: ResultDetail[];
+  resultParts: ResultPart[];
 }
