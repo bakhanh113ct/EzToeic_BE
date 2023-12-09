@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { User } from "../models/auth.model";
 import { client } from "../configs/redis";
 import { NextFunction, Request, Response } from "express";
-import { Errors } from "../helpers/error";
+import { ErrorResp, Errors } from "../helpers/error";
 
 dotenv.config();
 
@@ -52,6 +52,48 @@ const signRefreshToken = async (user: User) => {
       }
     );
   });
+};
+
+const verifyAdminAccessToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.headers.authorization) {
+    return next(Errors.BadRequest);
+  }
+
+  // Get token from header
+  const authHeader = req.headers.authorization;
+  const bearerToken = authHeader.split(" ");
+  const token = bearerToken[1];
+
+  // start verify token
+  jwt.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET!,
+    (err, payload: JwtPayload) => {
+      if (err) {
+        if (err.name === "JsonWebTokenError") {
+          return next(Errors.Unauthorized);
+        }
+        return next(Errors.Unauthorized);
+      }
+
+      if (!payload.isAdmin) {
+        const error = new ErrorResp(
+          "error.badRequest",
+          "You don't have a permission to do this task",
+          400
+        );
+        return next(error);
+      }
+
+      // Pass payload to next midleware
+      req.auth = payload;
+      next();
+    }
+  );
 };
 
 const verifyAccessToken = async (
@@ -123,4 +165,5 @@ export {
   signRefreshToken,
   verifyAccessToken,
   verifyRefreshToken,
+  verifyAdminAccessToken,
 };

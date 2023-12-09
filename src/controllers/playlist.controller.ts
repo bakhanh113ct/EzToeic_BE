@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { VocabList } from "../models/vocabList.model";
 import { Vocab } from "../models/vocab.model";
-import { Errors } from "../helpers/error";
+import { ErrorResp, Errors } from "../helpers/error";
 import { Playlist } from "../models/playlist.model";
 import { ILike } from "typeorm";
 import { Lesson } from "../models/lesson.model";
@@ -15,6 +15,11 @@ const getAllPlaylist = async (
   const perPage = 6;
   const search = req.query.search || "";
 
+  const itemCount = await Playlist.count({
+    where: { title: ILike(`%${search}%`) },
+    order: { id: "ASC", lessons: { id: "ASC" } },
+  });
+
   const playlists = await Playlist.find({
     relations: {
       lessons: true,
@@ -25,7 +30,10 @@ const getAllPlaylist = async (
     order: { id: "ASC", lessons: { id: "ASC" } },
   });
 
-  return res.json(playlists);
+  return res.json({
+    pageCount: Math.ceil(itemCount / perPage),
+    playlists: playlists,
+  });
 };
 
 const getLessonsInPlaylist = async (
@@ -37,6 +45,11 @@ const getLessonsInPlaylist = async (
   const perPage = 6;
   const search = req.query.search || "";
 
+  const itemCount = await Lesson.count({
+    where: { playlist: { id: Number(req.params.playlistId) } },
+    order: { id: "ASC" },
+  });
+
   const lessons = await Lesson.find({
     where: {
       playlist: { id: Number(req.params.playlistId) },
@@ -46,7 +59,10 @@ const getLessonsInPlaylist = async (
     order: { id: "ASC" },
   });
 
-  return res.json(lessons);
+  return res.json({
+    pageCount: Math.ceil(itemCount / perPage),
+    lessons: lessons,
+  });
 };
 
 const getOneLesson = async (
@@ -60,9 +76,13 @@ const getOneLesson = async (
         id: Number(req.params.lessonId),
       },
     });
+    if (lesson == null) {
+      const error = new ErrorResp("error.badRequest", "Response is null", 400);
+      next(error);
+    }
     return res.json(lesson);
   } catch (err) {
-    return res.json(err);
+    next(err);
   }
 };
 

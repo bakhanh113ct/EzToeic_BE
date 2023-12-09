@@ -1,18 +1,12 @@
 import { Expose } from "class-transformer";
 import { Response } from "express";
+import logger from "../configs/logger";
 
 export class ErrorResp extends Error {
-  // @Expose()
   readonly status: number;
-
-  // @Expose()
   readonly code: string;
-
-  // @Expose()
   readonly message: string;
-
   data: any;
-
   constructor(code: string, message: string, status?: number) {
     super();
     this.status = status || 500;
@@ -52,6 +46,7 @@ export const Errors = {
 export const handleError = (err: Error, res: Response) => {
   if (err instanceof ErrorResp) {
     const errResp = err as ErrorResp;
+    logger.error(errResp)
     res.status(errResp.status || Errors.BadRequest.status).send(errResp);
   } else {
     const errResp = new ErrorResp(
@@ -59,6 +54,7 @@ export const handleError = (err: Error, res: Response) => {
       JSON.stringify(err),
       Errors.InternalServerError.status
     );
+    logger.error(errResp)
     res.status(Errors.Sensitive.status).send(errResp);
   }
 };
