@@ -83,7 +83,7 @@ const getInfoTestById = async (
 
 const getTestById = async (req: Request, res: Response, next: NextFunction) => {
   let parts;
-  if (req.query.part.length == 1) {
+  if (req.query.part != null && req.query.part.length == 1) {
     parts = [req.query.part];
   }
   else parts = req.query.part || [1, 2, 3, 4, 5, 6, 7];
