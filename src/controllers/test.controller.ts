@@ -295,6 +295,7 @@ const submitTest = async (req: Request, res: Response, next: NextFunction) => {
   const getQuestionCount = async () => {
     const count = await PartDetail.createQueryBuilder("partDetail")
       .where("partDetail.partId IN (:...numbers)", { numbers: body.parts })
+      .andWhere("partDetail.testId = :id", { id: req.params.testId })
       .select("SUM(partDetail.questionCount)", "questionCount")
       .getRawOne();
     return count.questionCount;
@@ -310,6 +311,7 @@ const submitTest = async (req: Request, res: Response, next: NextFunction) => {
       .orderBy("question.index")
       .select([
         'question.id as "questionId"',
+        'question.index as "questionIndex"',
         'resultDetail.id as "resultDetailId"',
         'resultDetail.answerByUser as "answerByUser"',
         'resultDetail.isCorrect as "isCorrect"',
@@ -364,6 +366,8 @@ const submitTest = async (req: Request, res: Response, next: NextFunction) => {
     (questionCount = await getQuestionCount()),
     (testTitle = await getTestTitle()),
   ]);
+
+  console.log(questionCount);
 
   const wrongCount = Object.keys(body["answers"]).length - result.correctCount;
   const undoneCount =
@@ -472,6 +476,7 @@ const getDetailResult = async (
     .orderBy("question.index")
     .select([
       'question.id as "questionId"',
+      'question.index as "questionIndex"',
       "resultDetail.id as resultDetailId",
       'resultDetail.answerByUser as "answerByUser"',
       'resultDetail.isCorrect as "isCorrect"',
