@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc || ./node_modules/typescript/bin/tsc",
     "dev": "nodemon",
-    "start": "yarn install && yarn build && node dist/index.js"
+    "start": "npm run build && node dist/index.js"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
